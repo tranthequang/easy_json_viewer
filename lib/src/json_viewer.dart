@@ -1,3 +1,4 @@
+import 'package:easy_json_viewer/src/json_viewer_controller.dart';
 import 'package:flutter/material.dart';
 import 'json_node.dart';
 import 'json_tree_view.dart';
@@ -6,7 +7,7 @@ enum JsonViewerThemeMode { light, dark, auto }
 
 class JsonViewer extends StatelessWidget {
   final dynamic json;
-  final bool enableSearch;
+  final JsonViewerController? controller;
   final Widget Function(JsonNode, int)? customNodeBuilder;
   final JsonViewerThemeMode themeMode;
   final Color highlightColor;
@@ -14,7 +15,7 @@ class JsonViewer extends StatelessWidget {
   const JsonViewer({
     super.key,
     required this.json,
-    this.enableSearch = false,
+    this.controller,
     this.customNodeBuilder,
     this.themeMode = JsonViewerThemeMode.auto,
     this.highlightColor = Colors.yellow,

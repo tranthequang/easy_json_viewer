@@ -9,7 +9,8 @@ class JsonTreeExample extends StatefulWidget {
 }
 
 class _JsonTreeExampleState extends State<JsonTreeExample> {
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
+  final controller = JsonViewerController();
   String _searchKey = '';
   final Map<String, dynamic> sampleJson = {
     "name": "John Doe",
@@ -26,6 +27,9 @@ class _JsonTreeExampleState extends State<JsonTreeExample> {
   void _updateSearchKey(String searchKey) {
     setState(() {
       _searchKey = searchKey;
+      if (_searchKey.isNotEmpty) {
+        controller.expandAll();
+      }
     });
   }
 
@@ -51,9 +55,33 @@ class _JsonTreeExampleState extends State<JsonTreeExample> {
           ),
         ],
       ),
-      body: JsonTreeViewer(
-        json: sampleJson, // Your JSON data (String or Map)
-        searchKey: _searchKey, // Key to search for
+      body: Column(
+        children: [
+          Row(
+            spacing: 10,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  controller.expandAll();
+                },
+                child: const Text('Expand All'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  controller.collapseAll();
+                },
+                child: const Text('Collapse All'),
+              ),
+            ],
+          ),
+          Expanded(
+            child: JsonTreeViewer(
+              json: sampleJson, // Your JSON data (String or Map)
+              searchKey: _searchKey, // Key to search for
+              controller: controller,
+            ),
+          ),
+        ],
       ),
     );
   }

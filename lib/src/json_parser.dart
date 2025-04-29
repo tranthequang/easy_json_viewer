@@ -8,6 +8,7 @@ List<JsonNode> parseJson(dynamic json) {
       return JsonNode(
         key: entry.key,
         value: _getNodeValue(value),
+        rawValue: value,
         children: _parseChildren(value),
         isExpandable: _isExpandable(value),
       );
@@ -18,6 +19,7 @@ List<JsonNode> parseJson(dynamic json) {
       return JsonNode(
         key: '[${entry.key}]',
         value: _getNodeValue(value),
+        rawValue: value,
         children: _parseChildren(value),
         isExpandable: _isExpandable(value),
       );

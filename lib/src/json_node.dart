@@ -6,14 +6,18 @@ class JsonNode {
   bool isExpanded;
   final bool isExpandable;
   bool isHighlighted;
+  bool isHovered = false;
+  final dynamic rawValue;
 
   JsonNode({
     required this.key,
     required this.value,
+    required this.rawValue,
     this.children = const [],
     this.isExpanded = false,
     this.isExpandable = false,
     this.isHighlighted = false,
+    this.isHovered = false,
   });
 
   factory JsonNode.fromJson(dynamic json, {String key = ''}) {
@@ -25,6 +29,7 @@ class JsonNode {
       return JsonNode(
         key: key,
         value: '',
+        rawValue: json,
         children: children,
         isExpanded: true,
       );
@@ -38,17 +43,18 @@ class JsonNode {
       return JsonNode(
         key: key,
         value: '',
+        rawValue: json,
         children: children,
         isExpanded: true,
       );
     } else if (json is String) {
-      return JsonNode(key: key, value: json, isExpanded: false);
+      return JsonNode(key: key, value: json, rawValue: json, isExpanded: false);
     } else if (json is num) {
-      return JsonNode(key: key, value: json, isExpanded: false);
+      return JsonNode(key: key, value: json, rawValue: json, isExpanded: false);
     } else if (json is bool) {
-      return JsonNode(key: key, value: json, isExpanded: false);
+      return JsonNode(key: key, value: json, rawValue: json, isExpanded: false);
     } else {
-      return JsonNode(key: key, value: json, isExpanded: false);
+      return JsonNode(key: key, value: json, rawValue: json, isExpanded: false);
     }
   }
 }

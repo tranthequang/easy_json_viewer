@@ -1,5 +1,6 @@
 name: easy_json_viewer_example
 description: Example app for the json_preview package
+version: 1.0.0+1
 
 publish_to: 'none'
 
