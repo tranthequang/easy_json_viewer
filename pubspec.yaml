@@ -1,7 +1,7 @@
 name: easy_json_viewer
 description: "A new Flutter package project."
 version: 0.0.1
-homepage:
+homepage: https://github.com/tranthequang/easy_json_viewer
 
 publish_to: 'none'
 
