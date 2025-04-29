@@ -1,39 +1,32 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# easy_json_viewer
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
+[![Pub Version](https://img.shields.io/pub/v/easy_json_viewer)](https://pub.dev/packages/easy_json_viewer)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
+A lightweight and easy-to-use Flutter package for displaying and exploring JSON data visually.  
+**Supports expand/collapse, custom node rendering, search highlighting, dark/light/auto themes, and more!**
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+---
 
-## Features
+## ✨ Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- Render JSON data (from String, Map, or List).
+- Expand/Collapse individual nodes.
+- Expand/Collapse all nodes.
+- Customizable node widget rendering.
+- Highlight search results.
+- Custom highlight color.
+- Light, Dark, and Auto theme modes.
+- Smooth expand/collapse animation.
+- Copy JSON node value (mobile: tap, desktop/web: hover + click).
+- Fully scrollable and optimized for nested structures.
 
-## Getting started
+---
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+## 🚀 Installation
 
-## Usage
+Add this to your `pubspec.yaml`:
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
-
-```dart
-const like = 'sample';
-```
-
-## Additional information
-
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+```yaml
+dependencies:
+  easy_json_viewer: latest
