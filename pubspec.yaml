@@ -3,7 +3,6 @@ description: A lightweight and easy-to-use Flutter package for displaying and ex
 version: 1.0.0
 homepage: https://github.com/tranthequang/easy_json_viewer
 repository: https://github.com/tranthequang/easy_json_viewer
-author: Quang Tran <tranthequangbk@gmail.com>
 license: MIT
 
 environment:
