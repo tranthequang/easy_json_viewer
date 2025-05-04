@@ -1,3 +1,7 @@
+## 1.0.2
+
+- Added sort by `key` if need
+
 ## 1.0.1
 
 - Fixed padding and layout issues for nested nodes.

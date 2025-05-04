@@ -1,26 +1,37 @@
 import 'json_node.dart';
 
 /// Parse a dynamic JSON into a list of JsonNode.
-List<JsonNode> parseJson(dynamic json) {
+List<JsonNode> parseJson(dynamic json, bool isSort) {
   if (json is Map<String, dynamic>) {
-    return json.entries.map((entry) {
+    Map<String, dynamic> sortedJson = json;
+    if (isSort) {
+      sortedJson = Map.fromEntries(
+        json.entries.toList()..sort((a, b) => a.key.compareTo(b.key)),
+      );
+    }
+    return sortedJson.entries.map((entry) {
       final value = entry.value;
       return JsonNode(
         key: entry.key,
         value: _getNodeValue(value),
         rawValue: value,
-        children: _parseChildren(value),
+        children: _parseChildren(value, isSort),
         isExpandable: _isExpandable(value),
       );
     }).toList();
   } else if (json is List) {
-    return json.asMap().entries.map((entry) {
+    List<dynamic> sortedJson = json;
+    if (isSort) {
+      sortedJson = List.from(json)
+        ..sort((a, b) => a.toString().compareTo(b.toString()));
+    }
+    return sortedJson.asMap().entries.map((entry) {
       final value = entry.value;
       return JsonNode(
         key: '[${entry.key}]',
         value: _getNodeValue(value),
         rawValue: value,
-        children: _parseChildren(value),
+        children: _parseChildren(value, isSort),
         isExpandable: _isExpandable(value),
       );
     }).toList();
@@ -47,11 +58,11 @@ bool _isExpandable(dynamic value) {
 }
 
 /// Recursively parse children if needed.
-List<JsonNode> _parseChildren(dynamic value) {
+List<JsonNode> _parseChildren(dynamic value, bool isSort) {
   if (value is Map<String, dynamic>) {
-    return parseJson(value);
+    return parseJson(value, isSort);
   } else if (value is List) {
-    return parseJson(value);
+    return parseJson(value, isSort);
   } else {
     return [];
   }

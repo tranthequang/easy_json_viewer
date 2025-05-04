@@ -15,6 +15,7 @@ class JsonTreeViewer extends StatefulWidget {
   final Color highlightColor;
   final Color valueTextColor;
   final Color keyTextColor;
+  final bool isSort;
 
   const JsonTreeViewer({
     super.key,
@@ -26,6 +27,7 @@ class JsonTreeViewer extends StatefulWidget {
     this.highlightColor = Colors.yellow,
     this.valueTextColor = Colors.black,
     this.keyTextColor = Colors.black,
+    this.isSort = false,
   });
 
   @override
@@ -40,7 +42,7 @@ class _JsonTreeViewerState extends State<JsonTreeViewer> {
   @override
   void initState() {
     super.initState();
-    _jsonTree = parseJson(widget.json); // Parse the input JSON
+    _jsonTree = parseJson(widget.json, widget.isSort); // Parse the input JSON
     widget.controller?.addListener(_handleController);
   }
 
