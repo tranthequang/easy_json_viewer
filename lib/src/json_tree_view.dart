@@ -6,28 +6,32 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+enum JsonViewerThemeMode { light, dark, auto }
+
 class JsonTreeViewer extends StatefulWidget {
   final dynamic json; // JSON data (String or Map)
   final String searchKey; // Key to search for
   final JsonViewerController? controller;
-  final Widget Function(JsonNode, int)? customNodeBuilder;
   final JsonViewerThemeMode themeMode;
   final Color highlightColor;
   final Color valueTextColor;
+  final Color focusColor;
   final Color keyTextColor;
   final bool isSort;
+  final Function(int)? onResultSearch;
 
   const JsonTreeViewer({
     super.key,
     required this.json,
     this.controller,
     this.searchKey = '',
-    this.customNodeBuilder,
     this.themeMode = JsonViewerThemeMode.auto,
     this.highlightColor = Colors.yellow,
+    this.focusColor = Colors.grey,
     this.valueTextColor = Colors.black,
     this.keyTextColor = Colors.black,
     this.isSort = false,
+    this.onResultSearch,
   });
 
   @override
@@ -36,19 +40,28 @@ class JsonTreeViewer extends StatefulWidget {
 
 class _JsonTreeViewerState extends State<JsonTreeViewer> {
   late List<JsonNode> _jsonTree;
-  final ScrollController _scrollController =
-      ScrollController(); // For scrolling to search result
+
+  final List<JsonNode> _searchResults = [];
+  int _currentSearchIndex = 0;
+  final Map<JsonNode, GlobalKey> _nodeKeys = {};
 
   @override
   void initState() {
     super.initState();
     _jsonTree = parseJson(widget.json, widget.isSort); // Parse the input JSON
     widget.controller?.addListener(_handleController);
+    widget.controller?.nextResult = _handleNext;
+    widget.controller?.previousResult = _handlePrevious;
   }
 
   // Method to search nodes and highlight matching results
   void _searchAndHighlight(String searchKey) {
+    _searchResults.clear();
     _searchInNode(_jsonTree, searchKey);
+    _currentSearchIndex = 0;
+    if (_searchResults.isNotEmpty) {
+      _scrollToHighlighted(_searchResults[_currentSearchIndex]);
+    }
   }
 
   // Recursively search for the searchKey and highlight nodes
@@ -58,6 +71,7 @@ class _JsonTreeViewerState extends State<JsonTreeViewer> {
               (node.value?.toString().contains(searchKey) ?? false)) &&
           searchKey.isNotEmpty &&
           node.children.isEmpty) {
+        _searchResults.add(node);
         node.isHighlighted = true; // Mark node as highlighted
       } else {
         node.isHighlighted = false; // Reset highlight
@@ -67,31 +81,47 @@ class _JsonTreeViewerState extends State<JsonTreeViewer> {
       if (node.children.isNotEmpty) {
         _searchInNode(node.children, searchKey);
       }
+      widget.onResultSearch?.call(_searchResults.length);
     }
-
-    // Scroll to the first highlighted node
-    _scrollToFirstHighlightedNode();
   }
 
-  // Scroll to the first highlighted node
-  void _scrollToFirstHighlightedNode() {
-    for (int i = 0; i < _jsonTree.length; i++) {
-      JsonNode node = _jsonTree[i];
-      if (node.isHighlighted) {
-        // Scroll to the first matching node
-        _scrollController.animateTo(
-          i * 50.0, // Example offset based on row height (can be adjusted)
-          duration: Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-        );
-        break;
-      }
+  void _handleNext() {
+    if (_searchResults.isEmpty) return;
+    _currentSearchIndex = (_currentSearchIndex + 1) % _searchResults.length;
+    _scrollToHighlighted(_searchResults[_currentSearchIndex]);
+  }
+
+  void _handlePrevious() {
+    if (_searchResults.isEmpty) return;
+    _currentSearchIndex =
+        (_currentSearchIndex - 1 + _searchResults.length) %
+        _searchResults.length;
+    _scrollToHighlighted(_searchResults[_currentSearchIndex]);
+  }
+
+  void _scrollToHighlighted(JsonNode node) {
+    if (_searchResults.isEmpty) return;
+
+    final key = _nodeKeys[node];
+    if (key == null) return;
+
+    final context = key.currentContext;
+    if (context != null) {
+      Scrollable.ensureVisible(
+        context,
+        duration: Duration(milliseconds: 300),
+        alignment: 0.2, // scroll sao cho node nằm gần đầu
+        curve: Curves.easeInOut,
+      );
     }
+    setState(() {});
   }
 
   // Render each node
   Widget _buildNode(JsonNode node, int level) {
+    final key = _nodeKeys.putIfAbsent(node, () => GlobalKey());
     return Padding(
+      key: key,
       padding: EdgeInsets.only(left: level * 5.0, top: 4.0, bottom: 4.0),
       child: MouseRegion(
         onEnter: (_) {
@@ -202,10 +232,13 @@ class _JsonTreeViewerState extends State<JsonTreeViewer> {
               overflow: TextOverflow.visible,
               maxLines: null,
               style: TextStyle(
-                color:
+                color: widget.valueTextColor,
+                backgroundColor:
                     node.isHighlighted
-                        ? widget.highlightColor
-                        : widget.valueTextColor,
+                        ? _currentSearchIndex == _searchResults.indexOf(node)
+                            ? widget.focusColor
+                            : widget.highlightColor
+                        : Colors.transparent,
               ),
             ),
             if ((kIsWeb ||
@@ -294,13 +327,13 @@ class _JsonTreeViewerState extends State<JsonTreeViewer> {
 
   @override
   Widget build(BuildContext context) {
-    return Scrollbar(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: IntrinsicWidth(
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: IntrinsicWidth(
+        child: Scrollbar(
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
-            controller: _scrollController,
+            // controller: _scrollController,
             child: ConstrainedBox(
               constraints: BoxConstraints(
                 minWidth: MediaQuery.of(context).size.width,

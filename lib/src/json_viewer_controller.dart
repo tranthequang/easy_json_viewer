@@ -3,6 +3,11 @@ import 'package:flutter/foundation.dart';
 class JsonViewerController extends ChangeNotifier {
   bool _expandAll = false;
   bool _collapseAll = false;
+  void Function()? nextResult;
+  void Function()? previousResult;
+
+  void goToNext() => nextResult?.call();
+  void goToPrevious() => previousResult?.call();
 
   /// Request to expand all nodes
   void expandAll() {

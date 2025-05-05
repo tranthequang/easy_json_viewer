@@ -1,3 +1,10 @@
+## 1.0.3
+
+- Support next/back results after searched.
+- Minor code clean-up and documentation updates.
+- Refactored node builder to support more accurate indentation.
+
+
 ## 1.0.2
 
 - Added sort by `key` if need
