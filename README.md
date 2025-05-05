@@ -85,9 +85,6 @@ JsonViewer(
   controller: controller,
   themeMode: JsonViewerThemeMode.auto,
   highlightColor: Colors.orangeAccent,
-  customNodeBuilder: (node, level) {
-    return Text('${node.key}: ${node.value}');
-  },
 );
 
 // UI Buttons
