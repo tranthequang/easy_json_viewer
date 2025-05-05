@@ -3,24 +3,33 @@
 [![Pub Version](https://img.shields.io/pub/v/easy_json_viewer.svg)](https://pub.dev/packages/easy_json_viewer)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A lightweight and flexible Flutter package to visualize JSON data.  
-Supports expand/collapse nodes, customizable node rendering, external search control, theme customization, highlight, smooth animations, and copy functionality.
+A powerful, customizable, and lightweight Flutter widget to visualize and explore complex JSON data structures with support for search, highlight, copy, theming, and external control.
+
 
 ---
 
-## ✨ Features
+## 🚀 Features
 
-- Render JSON from `String`, `Map`, or `List`.
-- Expand/Collapse individual nodes and entire tree.
-- Smooth expand/collapse animations.
-- Customize node widget rendering.
-- Highlight search results with customizable highlight colors.
-- Dark, Light, and Auto themes support.
-- Copy node value (tap on mobile or hover on web/desktop).
-- Scroll to the first matched search result.
-- Null values are handled and displayed properly.
+✅ Parse and render JSON data (`String`, `Map`, or `List`) into a beautiful expandable/collapsible tree view  
+✅ Dark / Light / Auto theme mode  
+✅ Highlight search results with customizable highlight color  
+✅ Copy key-value on tap (with full JSON copy for lists/maps)  
+✅ Expand/Collapse all nodes from outside the widget  
+✅ Scroll to highlighted search results (support for next/previous navigation)  
+✅ Smart layout and overflow handling for deeply nested structures  
+✅ Compatible across mobile, web, desktop (MacOS, Windows, Linux)  
+✅ Search bar & controls can be implemented externally for more flexibility  
 
 ---
+
+## 📌 Parameters
+
+| Property | Type | Description |
+|---------|------|-------------|
+| `json` | `dynamic` | Raw JSON `String`, `Map`, or `List` |
+| `controller` | `JsonViewerController?` | Controller for controlling expand/collapse/search externally |
+| `themeMode` | `JsonViewerThemeMode` | `auto` (default), `dark`, or `light` |
+| `highlightColor` | `Color` | Color used to highlight search matches |
 
 ## 🚀 Installation
 
@@ -39,30 +48,65 @@ flutter pub get
 
 ---
 
-## 🛠 Usage
+## 🧭 External Controller API
+
+Use `JsonViewerController` to interact with the viewer from outside:
 
 ```dart
-import 'package:easy_json_viewer/easy_json_viewer.dart';
-
-...
+final controller = JsonViewerController();
 
 JsonViewer(
-  json: yourJsonData, // Can be a JSON String or a Map/List object
-  enableSearch: true,
-  themeMode: JsonViewerThemeMode.auto, // Options: auto, light, dark
-  highlightColor: Colors.yellow,       // Highlight color for search matches
+  json: myJson,
+  controller: controller,
+);
+
+// Navigate search results
+controller.goToNext();
+controller.goToPrevious();
+
+// Expand/collapse all
+controller.expandAll();
+controller.collapseAll();
+```
+
+## 🔍 Search Integration
+
+- Search is handled **externally** (you provide the UI).
+- You call `controller.search(String query)` to trigger highlighting and navigation logic.
+- The controller maintains the list of matching nodes and exposes navigation.
+
+## 🧱 Example Usage
+
+```dart
+final controller = JsonViewerController();
+
+JsonViewer(
+  json: jsonData,
+  controller: controller,
+  themeMode: JsonViewerThemeMode.auto,
+  highlightColor: Colors.orangeAccent,
   customNodeBuilder: (node, level) {
     return Text('${node.key}: ${node.value}');
   },
 );
+
+// UI Buttons
+ElevatedButton(onPressed: controller.goToNext, child: Text("Next"));
+ElevatedButton(onPressed: controller.goToPrevious, child: Text("Previous"));
 ```
 
-Where `yourJsonData` can be:
-- A raw JSON String
-- A parsed `Map<String, dynamic>`
-- A `List<dynamic>`
+## 📁 JSONNode Model
 
----
+Each parsed JSON value is wrapped into a `JsonNode` with:
+
+- `String key`
+- `dynamic value`
+- `List<JsonNode> children`
+- `bool isExpanded`
+- `bool isExpandable`
+- `bool isHighlighted`
+- `dynamic rawValue` — (original unprocessed value)
+
 
 ## 🎨 Theme Support
 
@@ -113,6 +157,19 @@ flutter run
 ```
 
 ---
+
+## 🧠 Design Decisions
+
+- Layout is scrollable both vertically and horizontally to avoid overflow issues
+- `GlobalKey` is assigned to each node for precise scrolling using `Scrollable.ensureVisible()`
+- `Flexible` and `Wrap` used to prevent layout overflow on long strings
+- The viewer widget is fully decoupled — search, control, and theme are customizable outside
+
+## 🛠️ Upcoming Ideas
+
+- Optional internal search bar
+- Animation customizations
+- Support for collapsed summary values (e.g., arrays with count preview)
 
 ## 📝 License
 
