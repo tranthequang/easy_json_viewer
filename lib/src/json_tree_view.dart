@@ -19,6 +19,7 @@ class JsonTreeViewer extends StatefulWidget {
   final Color keyTextColor;
   final bool isSort;
   final Function(int)? onResultSearch;
+  final Function(int)? onResultIndex;
 
   const JsonTreeViewer({
     super.key,
@@ -32,6 +33,7 @@ class JsonTreeViewer extends StatefulWidget {
     this.keyTextColor = Colors.black,
     this.isSort = false,
     this.onResultSearch,
+    this.onResultIndex,
   });
 
   @override
@@ -89,6 +91,7 @@ class _JsonTreeViewerState extends State<JsonTreeViewer> {
     if (_searchResults.isEmpty) return;
     _currentSearchIndex = (_currentSearchIndex + 1) % _searchResults.length;
     _scrollToHighlighted(_searchResults[_currentSearchIndex]);
+    widget.onResultIndex?.call(_currentSearchIndex);
   }
 
   void _handlePrevious() {
@@ -97,6 +100,7 @@ class _JsonTreeViewerState extends State<JsonTreeViewer> {
         (_currentSearchIndex - 1 + _searchResults.length) %
         _searchResults.length;
     _scrollToHighlighted(_searchResults[_currentSearchIndex]);
+    widget.onResultIndex?.call(_currentSearchIndex);
   }
 
   void _scrollToHighlighted(JsonNode node) {
@@ -146,11 +150,11 @@ class _JsonTreeViewerState extends State<JsonTreeViewer> {
         },
         child: GestureDetector(
           onTap: () {
-            // Mobile: Tap to copy key + value
-            if ([
-              TargetPlatform.android,
-              TargetPlatform.iOS,
-            ].contains(defaultTargetPlatform)) {
+            if (node.children.isNotEmpty) {
+              setState(() {
+                node.isExpanded = !node.isExpanded;
+              });
+            } else {
               final isComplexType =
                   node.rawValue is Map || node.rawValue is List;
               final copiedContent =
@@ -225,7 +229,8 @@ class _JsonTreeViewerState extends State<JsonTreeViewer> {
         const SizedBox(width: 5),
 
         // Value + Copy button (if hover)
-        Stack(
+        Row(
+          spacing: 5,
           children: [
             Text(
               '${node.value}',
@@ -248,29 +253,26 @@ class _JsonTreeViewerState extends State<JsonTreeViewer> {
                       TargetPlatform.linux,
                     ].contains(defaultTargetPlatform)) &&
                 node.isHovered)
-              Positioned(
-                right: 0,
-                child: IconButton(
-                  icon: Icon(Icons.copy, size: 16),
-                  onPressed: () {
-                    final isComplexType =
-                        node.rawValue is Map || node.rawValue is List;
-                    final copiedContent =
-                        isComplexType
-                            ? const JsonEncoder.withIndent(
-                              '  ',
-                            ).convert(node.rawValue)
-                            : '${node.key}: ${node.value}';
-                    Clipboard.setData(ClipboardData(text: copiedContent));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Copied: ${copiedContent.length > 100 ? '${copiedContent.substring(0, 100)}...' : copiedContent}',
-                        ),
+              InkWell(
+                onTap: () {
+                  final isComplexType =
+                      node.rawValue is Map || node.rawValue is List;
+                  final copiedContent =
+                      isComplexType
+                          ? const JsonEncoder.withIndent(
+                            '  ',
+                          ).convert(node.rawValue)
+                          : '${node.key}: ${node.value}';
+                  Clipboard.setData(ClipboardData(text: copiedContent));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Copied: ${copiedContent.length > 100 ? '${copiedContent.substring(0, 100)}...' : copiedContent}',
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
+                child: Icon(Icons.copy, size: 16),
               ),
           ],
         ),
@@ -327,13 +329,38 @@ class _JsonTreeViewerState extends State<JsonTreeViewer> {
 
   @override
   Widget build(BuildContext context) {
+    return kIsWeb ||
+            [
+              TargetPlatform.macOS,
+              TargetPlatform.windows,
+              TargetPlatform.linux,
+            ].contains(defaultTargetPlatform)
+        ? _buildContentForWeb()
+        : _buildContentForMobile();
+  }
+
+  Widget _buildContentForWeb() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          minWidth: MediaQuery.of(context).size.width,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: _jsonTree.map((node) => _buildNode(node, 0)).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContentForMobile() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: IntrinsicWidth(
         child: Scrollbar(
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
-            // controller: _scrollController,
             child: ConstrainedBox(
               constraints: BoxConstraints(
                 minWidth: MediaQuery.of(context).size.width,

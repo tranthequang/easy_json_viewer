@@ -90,6 +90,9 @@ class _JsonTreeExampleState extends State<JsonTreeExample> {
               onResultSearch: (numRessult) {
                 log('Found $numRessult results');
               },
+              onResultIndex: (p0) {
+                log('Current index: $p0');
+              },
             ),
           ),
         ],

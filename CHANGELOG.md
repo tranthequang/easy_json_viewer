@@ -1,3 +1,10 @@
+## 1.0.4
+
+- Return the number of focused result.
+- Fix issue about scroll in web platform.
+- Minor code clean-up and documentation updates.
+- Refactored node builder to support more accurate indentation.
+
 ## 1.0.3
 
 - Support next/back results after searched.
