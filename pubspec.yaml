@@ -1,6 +1,6 @@
 name: easy_json_viewer
 description: A lightweight and easy-to-use Flutter package for displaying and exploring JSON data visually with expand/collapse, search, and custom themes.
-version: 1.0.3
+version: 1.0.4
 homepage: https://github.com/tranthequang/easy_json_viewer
 repository: https://github.com/tranthequang/easy_json_viewer
 license: MIT
